@@ -125,7 +125,7 @@ SOURCE OVERVIEW:
         full_report = []
 
         try:
-            async for chunk in generate_completion_stream(prompt, system_prompt, model="llama3-70b-8192"):
+            async for chunk in generate_completion_stream(prompt, system_prompt, model="llama-3.1-70b-versatile"):
                 full_report.append(chunk)
                 await redis_client.publish(
                     f"job:{context.job_id}",
