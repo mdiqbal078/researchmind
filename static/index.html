@@ -340,7 +340,7 @@
                     // Update progress bar
                     const progress = document.getElementById('tracker-progress');
                     if (progress) {
-                        progress.style.width = \`\${(index / (steps.length - 1)) * 100}%\`;
+                        progress.style.width = `${(index / (steps.length - 1)) * 100}%`;
                     }
                 }
             }
@@ -359,7 +359,7 @@
                     throw new Error("Failed to initialize job.");
                 }
 
-                const evtSource = new EventSource(\`/stream/\${data.job_id}\`);
+                const evtSource = new EventSource(`/stream/${data.job_id}`);
                 
                 evtSource.onmessage = async (event) => {
                     try {
@@ -391,7 +391,7 @@
                             evtSource.close();
                             resetUI();
                         } else if (payload.event === 'ERROR') {
-                            trackerDiv.innerHTML = \`<div style="color: #ef4444; text-align: center; font-weight: bold;">⚠️ Error: \${payload.message}</div>\`;
+                            trackerDiv.innerHTML = `<div style="color: #ef4444; text-align: center; font-weight: bold;">⚠️ Error: ${payload.message}</div>`;
                             assistantBubble.classList.remove('thinking');
                             evtSource.close();
                             resetUI();
@@ -408,7 +408,7 @@
                 };
 
             } catch (error) {
-                trackerDiv.innerHTML = \`<div style="color: #ef4444; text-align: center; font-weight: bold;">⚠️ Error submitting query: \${error.message}</div>\`;
+                trackerDiv.innerHTML = `<div style="color: #ef4444; text-align: center; font-weight: bold;">⚠️ Error submitting query: ${error.message}</div>`;
                 assistantBubble.classList.remove('thinking');
                 resetUI();
             }
