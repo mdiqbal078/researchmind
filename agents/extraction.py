@@ -52,7 +52,7 @@ class ExtractionAgent(BaseAgent):
             result = await generate_json(
                 f"TEXT:\n{combined_text}",
                 system_prompt,
-                model="llama-3.1-8b-instant"
+                model="openai/gpt-oss-20b"
             )
             claims = self._parse_claims(result, context.raw_chunks, context.sources)
             context.claims = claims

@@ -26,7 +26,7 @@ groq_semaphore = asyncio.Semaphore(1)
     wait=wait_exponential(multiplier=2, min=2, max=10),
     stop=stop_after_attempt(5)
 )
-async def generate_completion(prompt: str, system_prompt: str = "", model: str = "llama-3.1-70b-versatile", response_format: str = "text") -> str:
+async def generate_completion(prompt: str, system_prompt: str = "", model: str = "openai/gpt-oss-120b", response_format: str = "text") -> str:
     """
     Centralized LLM call with Semaphore and Exponential Backoff Retries.
     """
@@ -56,7 +56,7 @@ async def generate_completion(prompt: str, system_prompt: str = "", model: str =
     wait=wait_exponential(multiplier=2, min=2, max=10),
     stop=stop_after_attempt(4)
 )
-async def generate_completion_stream(prompt: str, system_prompt: str = "", model: str = "llama-3.1-70b-versatile"):
+async def generate_completion_stream(prompt: str, system_prompt: str = "", model: str = "openai/gpt-oss-120b"):
     """
     Centralized LLM call with Semaphore and Exponential Backoff Retries, yielding streamed text.
     """
@@ -80,7 +80,7 @@ async def generate_completion_stream(prompt: str, system_prompt: str = "", model
             if content is not None:
                 yield content
 
-async def generate_json(prompt: str, system_prompt: str, model: str = "llama-3.1-70b-versatile") -> dict:
+async def generate_json(prompt: str, system_prompt: str, model: str = "openai/gpt-oss-120b") -> dict:
     """
     Helper to reliably generate and parse JSON from the LLM.
     """

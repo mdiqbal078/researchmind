@@ -28,7 +28,7 @@ class OrchestratorAgent(BaseAgent):
         prompt = f"USER QUERY:\n{context.topic}"
         
         # We use the 70B model for reasoning
-        plan_dict = await generate_json(prompt, system_prompt, model="llama-3.1-70b-versatile")
+        plan_dict = await generate_json(prompt, system_prompt, model="openai/gpt-oss-120b")
         
         # If adversarial, override to skip further work
         if plan_dict.get("classification") == "ADVERSARIAL":
