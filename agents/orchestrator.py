@@ -28,7 +28,7 @@ class OrchestratorAgent(BaseAgent):
         prompt = f"USER QUERY:\n{context.topic}"
         
         # We use the 70B model for reasoning
-        plan_dict = await generate_json(prompt, system_prompt, model="llama-3.3-70b-versatile")
+        plan_dict = await generate_json(prompt, system_prompt, model="llama3-70b-8192")
         
         # If adversarial, override to skip further work
         if plan_dict.get("classification") == "ADVERSARIAL":

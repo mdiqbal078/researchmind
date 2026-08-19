@@ -272,6 +272,7 @@
             // Multi-Agent Visualizer DOM
             const trackerDiv = document.createElement('div');
             trackerDiv.className = 'agent-tracker';
+            trackerDiv.style.display = 'none';
             trackerDiv.innerHTML = `
                 <div class="tracker-line"><div class="tracker-progress" id="tracker-progress"></div></div>
                 <div class="agent-step" id="step-orchestrator">
@@ -352,9 +353,24 @@
                     body: JSON.stringify({ query, mode: currentMode, urls: [] })
                 });
 
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    let errMsg = `HTTP Error ${res.status}`;
+                    try {
+                        const errObj = JSON.parse(errorText);
+                        errMsg = errObj.detail || errObj.message || errObj.error || errMsg;
+                    } catch (e) {
+                        errMsg = errorText;
+                    }
+                    throw new Error(errMsg);
+                }
+
                 const data = await res.json();
                 
-                // For quick answers where no SSE streaming might happen, handle gracefully
+                if (data.mode === 'research') {
+                    trackerDiv.style.display = 'flex';
+                }
+
                 if (!data.job_id) {
                     throw new Error("Failed to initialize job.");
                 }

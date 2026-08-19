@@ -40,7 +40,7 @@ class CritiqueAgent(BaseAgent):
         prompt = f"CLAIMS:\n{json.dumps(claims_data, indent=2)}"
         
         # 70B model for heavy reasoning
-        result = await generate_json(prompt, system_prompt, model="llama-3.3-70b-versatile")
+        result = await generate_json(prompt, system_prompt, model="llama3-70b-8192")
         
         # Parse results
         reviews = []
