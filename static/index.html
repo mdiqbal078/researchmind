@@ -313,7 +313,6 @@
             scrollToBottom();
 
             let fullMarkdown = "";
-            let currentStepIndex = 0;
             const steps = ['orchestrator', 'retrieval', 'extraction', 'critique', 'report'];
 
             function updateVisualizer(agentName) {
@@ -323,7 +322,7 @@
                 if (index !== -1) {
                     // Mark previous steps as completed
                     for (let i = 0; i < index; i++) {
-                        const stepEl = document.getElementById(`step-${steps[i]}`);
+                        const stepEl = trackerDiv.querySelector(`#step-${steps[i]}`);
                         if (stepEl) {
                             stepEl.classList.remove('active');
                             stepEl.classList.add('completed');
@@ -332,14 +331,14 @@
                     }
                     
                     // Mark current step as active
-                    const currentEl = document.getElementById(`step-${agentKey}`);
+                    const currentEl = trackerDiv.querySelector(`#step-${agentKey}`);
                     if (currentEl) {
                         currentEl.classList.remove('completed');
                         currentEl.classList.add('active');
                     }
                     
                     // Update progress bar
-                    const progress = document.getElementById('tracker-progress');
+                    const progress = trackerDiv.querySelector('#tracker-progress');
                     if (progress) {
                         progress.style.width = `${(index / (steps.length - 1)) * 100}%`;
                     }
