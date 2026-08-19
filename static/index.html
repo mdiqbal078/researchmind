@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResearchMind — Dual-Mode Multi-Agent Intelligence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <style>
+        :root {
+            --bg-base: #090d16;
+            --bg-surface: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-glow: rgba(99, 102, 241, 0.3);
+            --primary: #6366f1;
+            --primary-glow: #818cf8;
+            --accent-cyan: #06b6d4;
+            --accent-emerald: #10b981;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: var(--bg-base); color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            height: 100vh; display: flex; flex-direction: column;
+        }
+        
+        header {
+            border-bottom: 1px solid var(--border-color); background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(16px); padding: 1rem 2rem; display: flex; justify-content: space-between;
+            z-index: 10;
+        }
+        .brand { display: flex; align-items: center; gap: 0.85rem; text-decoration: none; color: white; }
+        .brand-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--accent-cyan)); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; box-shadow: 0 0 15px var(--border-glow); }
+        .brand-text h1 { font-family: 'Outfit', sans-serif; font-size: 1.35rem; }
+        .brand-text span { font-size: 0.75rem; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        main {
+            flex: 1; overflow-y: auto; padding: 2rem; display: flex; flex-direction: column; align-items: center;
+            scroll-behavior: smooth;
+        }
+        .chat-container { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 1.5rem; padding-bottom: 2rem; }
+        
+        .chat-bubble { max-width: 85%; padding: 1.25rem; border-radius: var(--radius-lg); line-height: 1.6; animation: fadeIn 0.4s ease; position: relative; }
+        .chat-bubble.user { align-self: flex-end; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); border-bottom-right-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        .chat-bubble.assistant { align-self: flex-start; background: var(--bg-card); border: 1px solid var(--border-color); border-bottom-left-radius: 4px; width: 100%; backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(0,0,0,0.2); transition: all 0.3s ease; }
+        
+        .chat-bubble.thinking {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px var(--border-glow), inset 0 0 15px rgba(99, 102, 241, 0.1);
+        }
+
+        /* Markdown Styles */
+        .markdown-body p { margin-bottom: 1rem; }
+        .markdown-body h1, .markdown-body h2, .markdown-body h3 { font-family: 'Outfit', sans-serif; margin-top: 1.5rem; margin-bottom: 0.75rem; color: var(--primary-glow); }
+        .markdown-body ul, .markdown-body ol { margin-left: 1.5rem; margin-bottom: 1rem; }
+        .markdown-body li { margin-bottom: 0.25rem; }
+        .markdown-body a { color: var(--accent-cyan); text-decoration: none; border-bottom: 1px dashed var(--accent-cyan); transition: all 0.2s; }
+        .markdown-body a:hover { color: var(--text-main); border-bottom: 1px solid var(--text-main); }
+        .markdown-body code { font-family: 'JetBrains Mono', monospace; background: rgba(0,0,0,0.3); padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.9em; }
+        .markdown-body pre { background: #0d1117; padding: 1rem; border-radius: var(--radius-sm); overflow-x: auto; border: 1px solid var(--border-color); margin-bottom: 1rem; }
+        .markdown-body pre code { background: transparent; padding: 0; }
+        .markdown-body blockquote { border-left: 4px solid var(--primary); background: rgba(99, 102, 241, 0.05); padding: 1rem; margin: 1rem 0; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-style: italic; color: var(--text-muted); }
+        .markdown-body table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+        .markdown-body th, .markdown-body td { border: 1px solid var(--border-color); padding: 0.75rem; text-align: left; }
+        .markdown-body th { background: rgba(255,255,255,0.05); color: var(--primary-glow); }
+
+        /* Multi-Agent Visualizer */
+        .agent-tracker { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: var(--radius-md); border: 1px solid var(--border-color); position: relative; overflow: hidden; }
+        .agent-step { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; z-index: 2; flex: 1; text-align: center; opacity: 0.4; transition: all 0.3s ease; }
+        .agent-step.active { opacity: 1; transform: scale(1.05); }
+        .agent-step.active .step-icon { background: var(--primary); color: white; box-shadow: 0 0 15px var(--primary-glow); border-color: var(--primary-glow); }
+        .agent-step.completed { opacity: 0.8; }
+        .agent-step.completed .step-icon { background: var(--accent-emerald); color: white; border-color: var(--accent-emerald); }
+        .step-icon { width: 32px; height: 32px; border-radius: 50%; background: var(--bg-surface); border: 1px solid var(--text-muted); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; transition: all 0.3s ease; font-weight: bold; }
+        .step-label { font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        /* Connecting line */
+        .tracker-line { position: absolute; top: 1.5rem; left: 10%; right: 10%; height: 2px; background: rgba(255,255,255,0.1); z-index: 1; }
+        .tracker-progress { position: absolute; top: 0; left: 0; height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent-cyan)); width: 0%; transition: width 0.5s ease; }
+
+        /* Typing Indicator */
+        .typing-indicator { display: flex; gap: 0.4rem; padding: 0.5rem 0; align-items: center; }
+        .typing-indicator span { width: 6px; height: 6px; background-color: var(--primary-glow); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+        /* Starter Cards */
+        .starter-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+        .starter-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s ease; display: flex; flex-direction: column; gap: 0.5rem; }
+        .starter-card:hover { transform: translateY(-4px); background: rgba(255,255,255,0.08); border-color: var(--primary); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .starter-icon { font-size: 1.5rem; }
+        .starter-title { font-weight: 600; font-size: 0.95rem; color: var(--text-main); }
+        .starter-desc { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* Query Box */
+        .query-box-container { width: 100%; max-width: 900px; margin: 0 auto; padding: 1rem 2rem; background: transparent; position: sticky; bottom: 0; padding-bottom: 2rem; }
+        .query-box { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 1rem; box-shadow: 0 -10px 40px rgba(0,0,0,0.3); transition: border-color 0.3s ease; }
+        .query-box:focus-within { border-color: var(--primary); box-shadow: 0 0 20px var(--border-glow); }
+        textarea { width: 100%; background: transparent; border: none; color: white; font-family: inherit; font-size: 1rem; resize: none; outline: none; min-height: 24px; max-height: 200px; line-height: 1.5; overflow-y: hidden; }
+        
+        .query-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.75rem; }
+        .mode-selector { display: flex; gap: 0.5rem; background: rgba(0,0,0,0.2); padding: 0.25rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); }
+        .mode-btn { background: transparent; border: none; color: var(--text-muted); padding: 0.5rem 0.8rem; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-size: 0.85rem; font-weight: 500; display: flex; align-items: center; gap: 0.4rem; }
+        .mode-btn:hover:not(.active) { color: white; background: rgba(255,255,255,0.05); }
+        .mode-btn.active { background: rgba(99, 102, 241, 0.15); color: var(--primary-glow); }
+        
+        .submit-btn { background: linear-gradient(135deg, var(--primary), var(--accent-cyan)); color: white; border: none; padding: 0.6rem 1.5rem; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem; }
+        .submit-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 15px var(--border-glow); }
+        .submit-btn:active:not(:disabled) { transform: translateY(0); }
+        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(50%); }
+
+        .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; display: none; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .submit-btn.loading .btn-text { display: none; }
+        .submit-btn.loading .spinner { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" class="brand">
+            <div class="brand-icon">⚡</div>
+            <div class="brand-text">
+                <h1>ResearchMind</h1>
+                <span>Dual-Mode Multi-Agent Intelligence</span>
+            </div>
+        </a>
+    </header>
+
+    <main id="chat-window">
+        <div class="chat-container" id="chat-history">
+            <!-- Initial Greeting -->
+            <div class="chat-bubble assistant">
+                <div class="markdown-body">
+                    <h2>Welcome to ResearchMind</h2>
+                    <p>I am an autonomous multi-agent system designed for deep research and fast answers. Ask me anything, or try one of the suggestions below to trigger a comprehensive research pipeline.</p>
+                </div>
+                <div class="starter-cards">
+                    <div class="starter-card" onclick="setQuery('What is the history and evolution of Quantum Computing?', 'research')">
+                        <div class="starter-icon">⚛️</div>
+                        <div class="starter-title">Quantum Computing</div>
+                        <div class="starter-desc">Deep research into its history and evolution.</div>
+                    </div>
+                    <div class="starter-card" onclick="setQuery('Analyze the pros and cons of Serverless Architecture.', 'research')">
+                        <div class="starter-icon">☁️</div>
+                        <div class="starter-title">Serverless Architecture</div>
+                        <div class="starter-desc">A comparative analysis of pros and cons.</div>
+                    </div>
+                    <div class="starter-card" onclick="setQuery('What are the latest breakthroughs in CRISPR gene editing?', 'auto')">
+                        <div class="starter-icon">🧬</div>
+                        <div class="starter-title">CRISPR Breakthroughs</div>
+                        <div class="starter-desc">Find the most recent scientific advancements.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="query-box-container">
+        <form class="query-box" id="research-form">
+            <textarea id="query-input" placeholder="Ask any question or research topic..." rows="1" required></textarea>
+            <div class="query-controls">
+                <div class="mode-selector">
+                    <button type="button" class="mode-btn active" data-mode="auto"><span>🤖</span> Auto</button>
+                    <button type="button" class="mode-btn" data-mode="normal"><span>⚡</span> Quick Answer</button>
+                    <button type="button" class="mode-btn" data-mode="research"><span>🔬</span> Deep Research</button>
+                </div>
+                <button type="submit" id="submit-btn" class="submit-btn">
+                    <span class="btn-text">Send →</span>
+                    <div class="spinner"></div>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Configure marked.js to use highlight.js
+        marked.setOptions({
+            highlight: function(code, lang) {
+                const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+                return hljs.highlight(code, { language }).value;
+            },
+            langPrefix: 'hljs language-'
+        });
+
+        // Mode Selection
+        let currentMode = 'auto';
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentMode = btn.dataset.mode;
+            });
+        });
+
+        const form = document.getElementById('research-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const queryInput = document.getElementById('query-input');
+        const chatHistory = document.getElementById('chat-history');
+        const chatWindow = document.getElementById('chat-window');
+
+        // Auto-resize textarea
+        queryInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+            if (this.value === '') this.style.height = 'auto';
+        });
+
+        // Starter card click handler
+        window.setQuery = function(query, mode) {
+            queryInput.value = query;
+            queryInput.dispatchEvent(new Event('input')); // Trigger resize
+            
+            // Set mode
+            document.querySelectorAll('.mode-btn').forEach(b => {
+                if (b.dataset.mode === mode) b.click();
+            });
+            
+            form.dispatchEvent(new Event('submit'));
+        };
+
+        function appendMessage(role, contentHtml) {
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${role}`;
+            bubble.innerHTML = `<div class="markdown-body">${contentHtml}</div>`;
+            chatHistory.appendChild(bubble);
+            scrollToBottom();
+            return bubble;
+        }
+
+        function scrollToBottom() {
+            chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
+        }
+
+        let isProcessing = false;
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (isProcessing) return;
+            
+            const query = queryInput.value.trim();
+            if (!query) return;
+
+            // Reset input
+            queryInput.value = '';
+            queryInput.style.height = 'auto';
+            
+            isProcessing = true;
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+            queryInput.disabled = true;
+            queryInput.placeholder = "Researching... Please wait.";
+
+            appendMessage('user', query);
+
+            // Create Assistant Bubble with Visualizer
+            const assistantBubble = document.createElement('div');
+            assistantBubble.className = 'chat-bubble assistant thinking';
+            
+            // Multi-Agent Visualizer DOM
+            const trackerDiv = document.createElement('div');
+            trackerDiv.className = 'agent-tracker';
+            trackerDiv.innerHTML = `
+                <div class="tracker-line"><div class="tracker-progress" id="tracker-progress"></div></div>
+                <div class="agent-step" id="step-orchestrator">
+                    <div class="step-icon">1</div>
+                    <div class="step-label">Plan</div>
+                </div>
+                <div class="agent-step" id="step-retrieval">
+                    <div class="step-icon">2</div>
+                    <div class="step-label">Search</div>
+                </div>
+                <div class="agent-step" id="step-extraction">
+                    <div class="step-icon">3</div>
+                    <div class="step-label">Extract</div>
+                </div>
+                <div class="agent-step" id="step-critique">
+                    <div class="step-icon">4</div>
+                    <div class="step-label">Verify</div>
+                </div>
+                <div class="agent-step" id="step-report">
+                    <div class="step-icon">5</div>
+                    <div class="step-label">Report</div>
+                </div>
+            `;
+            
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'typing-indicator';
+            typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+            typingIndicator.style.marginTop = '1rem';
+            typingIndicator.style.justifyContent = 'center';
+            trackerDiv.appendChild(typingIndicator);
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'markdown-body';
+            
+            assistantBubble.appendChild(trackerDiv);
+            assistantBubble.appendChild(contentDiv);
+            chatHistory.appendChild(assistantBubble);
+            scrollToBottom();
+
+            let fullMarkdown = "";
+            let currentStepIndex = 0;
+            const steps = ['orchestrator', 'retrieval', 'extraction', 'critique', 'report'];
+
+            function updateVisualizer(agentName) {
+                const agentKey = agentName.toLowerCase();
+                const index = steps.indexOf(agentKey);
+                
+                if (index !== -1) {
+                    // Mark previous steps as completed
+                    for (let i = 0; i < index; i++) {
+                        const stepEl = document.getElementById(`step-${steps[i]}`);
+                        if (stepEl) {
+                            stepEl.classList.remove('active');
+                            stepEl.classList.add('completed');
+                            stepEl.querySelector('.step-icon').innerHTML = '✓';
+                        }
+                    }
+                    
+                    // Mark current step as active
+                    const currentEl = document.getElementById(`step-${agentKey}`);
+                    if (currentEl) {
+                        currentEl.classList.remove('completed');
+                        currentEl.classList.add('active');
+                    }
+                    
+                    // Update progress bar
+                    const progress = document.getElementById('tracker-progress');
+                    if (progress) {
+                        progress.style.width = \`\${(index / (steps.length - 1)) * 100}%\`;
+                    }
+                }
+            }
+
+            try {
+                const res = await fetch('/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, mode: currentMode, urls: [] })
+                });
+
+                const data = await res.json();
+                
+                // For quick answers where no SSE streaming might happen, handle gracefully
+                if (!data.job_id) {
+                    throw new Error("Failed to initialize job.");
+                }
+
+                const evtSource = new EventSource(\`/stream/\${data.job_id}\`);
+                
+                evtSource.onmessage = async (event) => {
+                    try {
+                        const payload = JSON.parse(event.data);
+                        
+                        if (payload.event === 'AGENT_START') {
+                            updateVisualizer(payload.agent);
+                        } else if (payload.event === 'REPORT_CHUNK') {
+                            // First chunk received: hide visualizer, remove glowing border
+                            if (trackerDiv.style.display !== 'none') {
+                                trackerDiv.style.display = 'none';
+                                assistantBubble.classList.remove('thinking');
+                            }
+                            
+                            fullMarkdown += payload.chunk;
+                            contentDiv.innerHTML = marked.parse(fullMarkdown);
+                            
+                            // Re-highlight any code blocks generated dynamically
+                            contentDiv.querySelectorAll('pre code').forEach((block) => {
+                                hljs.highlightElement(block);
+                            });
+                            
+                            scrollToBottom();
+                        } else if (payload.event === 'COMPLETE') {
+                            if (trackerDiv.style.display !== 'none') {
+                                trackerDiv.style.display = 'none';
+                                assistantBubble.classList.remove('thinking');
+                            }
+                            evtSource.close();
+                            resetUI();
+                        } else if (payload.event === 'ERROR') {
+                            trackerDiv.innerHTML = \`<div style="color: #ef4444; text-align: center; font-weight: bold;">⚠️ Error: \${payload.message}</div>\`;
+                            assistantBubble.classList.remove('thinking');
+                            evtSource.close();
+                            resetUI();
+                        }
+                    } catch(err) {
+                        console.error("Stream parse error", err);
+                    }
+                };
+
+                evtSource.onerror = () => {
+                    evtSource.close();
+                    assistantBubble.classList.remove('thinking');
+                    resetUI();
+                };
+
+            } catch (error) {
+                trackerDiv.innerHTML = \`<div style="color: #ef4444; text-align: center; font-weight: bold;">⚠️ Error submitting query: \${error.message}</div>\`;
+                assistantBubble.classList.remove('thinking');
+                resetUI();
+            }
+        });
+        
+        function resetUI() {
+            isProcessing = false;
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('loading');
+            queryInput.disabled = false;
+            queryInput.placeholder = "Ask any question or research topic...";
+        }
+
+        // Handle enter to submit (Shift+Enter for newline)
+        queryInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                form.dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>
