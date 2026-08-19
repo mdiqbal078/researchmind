@@ -405,7 +405,9 @@
                             evtSource.close();
                             resetUI();
                         } else if (payload.event === 'ERROR') {
-                            trackerDiv.innerHTML = `<div style="color: #ef4444; text-align: center; font-weight: bold;">⚠️ Error: ${payload.message}</div>`;
+                            trackerDiv.style.display = 'none';
+                            typingIndicator.style.display = 'none';
+                            contentDiv.innerHTML = `<div style="color: #ef4444; text-align: center; font-weight: bold; margin-top: 10px;">⚠️ Error: ${payload.message}</div>`;
                             assistantBubble.classList.remove('thinking');
                             evtSource.close();
                             resetUI();
