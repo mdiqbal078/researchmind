@@ -424,7 +424,9 @@
                 };
 
             } catch (error) {
-                trackerDiv.innerHTML = `<div style="color: #ef4444; text-align: center; font-weight: bold;">⚠️ Error submitting query: ${error.message}</div>`;
+                trackerDiv.style.display = 'none';
+                typingIndicator.style.display = 'none';
+                contentDiv.innerHTML = `<div style="color: #ef4444; text-align: center; font-weight: bold; margin-top: 10px;">⚠️ Error submitting query: ${error.message}</div>`;
                 assistantBubble.classList.remove('thinking');
                 resetUI();
             }

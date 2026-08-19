@@ -33,8 +33,11 @@ async def create_query(request: QueryRequest, background_tasks: BackgroundTasks,
     # Auto Mode Classification
     if mode == "auto":
         prompt = f"Does this query require multi-source internet research, or is it a simple fact answerable in one sentence? Query: '{request.query}'. Answer strictly with 'RESEARCH' or 'NORMAL'."
-        resp = await generate_completion(prompt, model="llama-3.1-8b-instant")
-        mode = "research" if "RESEARCH" in resp.upper() else "normal"
+        try:
+            resp = await generate_completion(prompt, model="llama-3.1-8b-instant")
+            mode = "research" if "RESEARCH" in resp.upper() else "normal"
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
 
     # Create Job in DB
     job = Job(topic=request.query, mode=mode, input_urls=request.urls)
