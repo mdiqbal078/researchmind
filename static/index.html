@@ -300,14 +300,14 @@
             const typingIndicator = document.createElement('div');
             typingIndicator.className = 'typing-indicator';
             typingIndicator.innerHTML = '<span></span><span></span><span></span>';
-            typingIndicator.style.marginTop = '1rem';
+            typingIndicator.style.padding = '0.5rem';
             typingIndicator.style.justifyContent = 'center';
-            trackerDiv.appendChild(typingIndicator);
 
             const contentDiv = document.createElement('div');
             contentDiv.className = 'markdown-body';
             
             assistantBubble.appendChild(trackerDiv);
+            assistantBubble.appendChild(typingIndicator);
             assistantBubble.appendChild(contentDiv);
             chatHistory.appendChild(assistantBubble);
             scrollToBottom();
@@ -385,10 +385,9 @@
                             updateVisualizer(payload.agent);
                         } else if (payload.event === 'REPORT_CHUNK') {
                             // First chunk received: hide visualizer, remove glowing border
-                            if (trackerDiv.style.display !== 'none') {
-                                trackerDiv.style.display = 'none';
-                                assistantBubble.classList.remove('thinking');
-                            }
+                            trackerDiv.style.display = 'none';
+                            typingIndicator.style.display = 'none';
+                            assistantBubble.classList.remove('thinking');
                             
                             fullMarkdown += payload.chunk;
                             contentDiv.innerHTML = marked.parse(fullMarkdown);
@@ -400,10 +399,9 @@
                             
                             scrollToBottom();
                         } else if (payload.event === 'COMPLETE') {
-                            if (trackerDiv.style.display !== 'none') {
-                                trackerDiv.style.display = 'none';
-                                assistantBubble.classList.remove('thinking');
-                            }
+                            trackerDiv.style.display = 'none';
+                            typingIndicator.style.display = 'none';
+                            assistantBubble.classList.remove('thinking');
                             evtSource.close();
                             resetUI();
                         } else if (payload.event === 'ERROR') {
