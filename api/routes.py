@@ -34,7 +34,7 @@ async def create_query(request: QueryRequest, background_tasks: BackgroundTasks,
     if mode == "auto":
         prompt = f"Does this query require multi-source internet research, or is it a simple fact answerable in one sentence? Query: '{request.query}'. Answer strictly with 'RESEARCH' or 'NORMAL'."
         try:
-            resp = await generate_completion(prompt, model="openai/gpt-oss-20b")
+            resp = await generate_completion(prompt, model="openai/gpt-oss-120b")
             mode = "research" if "RESEARCH" in resp.upper() else "normal"
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
