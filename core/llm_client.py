@@ -93,13 +93,11 @@ async def generate_json(prompt: str, system_prompt: str, model: str = "openai/gp
     import re
     def _parse(text):
         text = text.strip()
-        if text.startswith("```json"):
-            text = text[7:]
-        if text.startswith("```"):
-            text = text[3:]
-        if text.endswith("```"):
-            text = text[:-3]
-        return json.loads(text.strip())
+        # Find everything between the first { or [ and the last } or ]
+        match = re.search(r'(\{.*\}|\[.*\])', text, re.DOTALL)
+        if match:
+            text = match.group(1)
+        return json.loads(text)
 
     try:
         result_text = await generate_completion(prompt, system_prompt, model, response_format=fmt)
