@@ -165,6 +165,11 @@
                         <div class="starter-title">CRISPR Breakthroughs</div>
                         <div class="starter-desc">Find the most recent scientific advancements.</div>
                     </div>
+                    <div class="starter-card" onclick="setQuery('What is the timeline to Artificial General Intelligence (AGI)?', 'research')">
+                        <div class="starter-icon">🧠</div>
+                        <div class="starter-title">AGI Timeline</div>
+                        <div class="starter-desc">Research expert predictions and AGI roadmaps.</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -230,7 +235,7 @@
                 if (b.dataset.mode === mode) b.click();
             });
             
-            form.dispatchEvent(new Event('submit'));
+            submitBtn.click(); // Programmatically click the submit button to trigger the event properly
         };
 
         function appendMessage(role, contentHtml) {
