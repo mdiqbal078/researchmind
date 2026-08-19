@@ -56,8 +56,7 @@ async def create_query(request: QueryRequest, background_tasks: BackgroundTasks,
             
             full_answer = []
             try:
-                sys_prompt = "You are a direct, concise assistant. Do not output any internal thinking, drafting, or thought process. Provide only the final answer directly."
-                async for chunk in generate_completion_stream(query, system_prompt=sys_prompt, model="qwen/qwen3.6-27b"):
+                async for chunk in generate_completion_stream(query, model="openai/gpt-oss-20b"):
                     full_answer.append(chunk)
                     await redis_client.publish(f"job:{job_id}", json.dumps({"event": "REPORT_CHUNK", "chunk": chunk}))
                 
