@@ -85,7 +85,7 @@ async def create_query(request: QueryRequest, background_tasks: BackgroundTasks,
         
     else:
         # Research Mode: Enqueue Celery Task
-        run_research_job.delay(job.id, request.query, request.urls)
+        run_research_job.delay(str(job.id), request.query, request.urls)
         return {
             "job_id": job.id, 
             "mode": "research", 

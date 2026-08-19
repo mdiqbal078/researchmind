@@ -52,8 +52,8 @@
         .chat-container { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 1.5rem; padding-bottom: 2rem; }
         
         .chat-bubble { max-width: 85%; padding: 1.25rem; border-radius: var(--radius-lg); line-height: 1.6; animation: fadeIn 0.4s ease; position: relative; }
-        .chat-bubble.user { align-self: flex-end; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); border-bottom-right-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
-        .chat-bubble.assistant { align-self: flex-start; background: var(--bg-card); border: 1px solid var(--border-color); border-bottom-left-radius: 4px; width: 100%; backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(0,0,0,0.2); transition: all 0.3s ease; }
+        .chat-bubble.user { align-self: flex-end; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); border-bottom-right-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); word-break: break-word; }
+        .chat-bubble.assistant { align-self: flex-start; background: var(--bg-card); border: 1px solid var(--border-color); border-bottom-left-radius: 4px; width: 100%; backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(0,0,0,0.2); transition: border-color 0.3s ease, box-shadow 0.3s ease; overflow: hidden; }
         
         .chat-bubble.thinking {
             border-color: var(--primary);
