@@ -86,11 +86,26 @@ async def generate_json(prompt: str, system_prompt: str, model: str = "openai/gp
     """
     system_prompt += "\n\nYou must return ONLY valid JSON. Do not include markdown blocks like ```json."
     
+    # Qwen on Groq often fails the strict json_mode validation (400 json_validate_failed).
+    # For Qwen, we use text mode and manually strip markdown if needed.
+    fmt = "text" if "qwen" in model.lower() else "json_object"
+    
+    import re
+    def _parse(text):
+        text = text.strip()
+        if text.startswith("```json"):
+            text = text[7:]
+        if text.startswith("```"):
+            text = text[3:]
+        if text.endswith("```"):
+            text = text[:-3]
+        return json.loads(text.strip())
+
     try:
-        result_text = await generate_completion(prompt, system_prompt, model, response_format="json_object")
-        return json.loads(result_text)
-    except json.JSONDecodeError:
-        # Fallback retry if the model ignored the json_object instruction (rare but happens)
-        fallback_prompt = prompt + "\n\nCRITICAL: YOUR PREVIOUS OUTPUT WAS NOT VALID JSON. YOU MUST RETURN ONLY PARSABLE JSON."
-        result_text = await generate_completion(fallback_prompt, system_prompt, model, response_format="json_object")
-        return json.loads(result_text)
+        result_text = await generate_completion(prompt, system_prompt, model, response_format=fmt)
+        return _parse(result_text)
+    except Exception as e:
+        # Fallback to text mode entirely if the API throws a 400 or JSON decoding fails
+        fallback_prompt = prompt + "\n\nCRITICAL: YOUR PREVIOUS OUTPUT WAS REJECTED. YOU MUST RETURN ONLY RAW PARSABLE JSON WITHOUT ANY MARKDOWN OR TEXT."
+        result_text = await generate_completion(fallback_prompt, system_prompt, model, response_format="text")
+        return _parse(result_text)
